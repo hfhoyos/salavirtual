@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AIAcademy · Pizarra Colaborativa V25</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: radial-gradient(circle at 10% 20%, #0a0f1a, #03060c);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 650px;
+            width: 100%;
+            background: rgba(18, 25, 40, 0.65);
+            backdrop-filter: blur(18px);
+            border-radius: 56px;
+            padding: 48px 40px;
+            text-align: center;
+            border: 1px solid rgba(72, 187, 255, 0.3);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4);
+        }
+
+        .logo-icon {
+            background: linear-gradient(145deg, #2b6ef0, #0f4bc0);
+            width: 80px;
+            height: 80px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            font-weight: 800;
+            margin: 0 auto 20px;
+            color: white;
+            box-shadow: 0 0 20px #2b6ef0;
+        }
+
+        h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #FFF5D9, #FFDFA5);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .sub {
+            color: #9aaec5;
+            margin-bottom: 36px;
+            font-size: 0.95rem;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 48px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 60px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: #ffd966;
+            color: #1e293b;
+            box-shadow: 0 4px 12px rgba(255, 217, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #ffc107;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 193, 7, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.12);
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(4px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .version {
+            font-size: 0.7rem;
+            color: #5b6e8c;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 24px;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 32px 24px;
+            }
+            h1 {
+                font-size: 1.6rem;
+            }
+            .btn {
+                padding: 12px 24px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="logo-icon">🎓</div>
+    <h1>AIAcademy</h1>
+    <div class="sub">Pizarra colaborativa · Diapositivas · Videoconferencia</div>
+
+    <div class="buttons">
+        <a href="tutor.html" class="btn btn-primary">
+            👑 TUTOR
+        </a>
+        <a href="cliente.html" class="btn btn-secondary">
+            👁️ CLIENTE
+        </a>
+    </div>
+
+    <div class="features">
+        <span class="feature">📹 Jitsi integrado</span>
+        <span class="feature">🎨 Pizarra compartida</span>
+        <span class="feature">📄 Diapositivas</span>
+        <span class="feature">📝 3 textos por slide</span>
+        <span class="feature">🎮 Control remoto</span>
+        <span class="feature">💾 Exportar PNG</span>
+        <span class="feature">🔊 Mic remoto</span>
+        <span class="feature">📷 Cámara remota</span>
+    </div>
+
+    <div class="version">
+        Versión V25 · WebSocket en tiempo real · Creado con ❤️
+    </div>
+</div>
+</body>
+</html>
