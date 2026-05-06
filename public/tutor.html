@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>👑 TUTOR V25 · Diapositivas + Textos + Exportar PNG</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: system-ui, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e2a3a, #0a0f1a);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .dashboard { max-width: 1600px; margin: 0 auto; }
+        .status-header { text-align: center; margin: -10px 0 20px 0; font-size: 0.8rem; color: #7cb342; }
+        .main-layout { display: flex; gap: 24px; flex-wrap: wrap; }
+        .jitsi-remote-panel {
+            flex: 1; min-width: 220px; background: rgba(0,0,0,0.45); backdrop-filter: blur(14px);
+            border-radius: 32px; padding: 20px; border: 1px solid #4c9f70; height: fit-content;
+            display: flex; flex-direction: column; gap: 20px;
+        }
+        .jitsi-wrapper { background: #2c3e2f; border-radius: 20px; overflow: hidden; border: 1px solid #4c9f70; }
+        .jitsi-wrapper > div:first-child { background: #2c3e2f; padding: 8px; text-align: center; font-weight: bold; color: #ffd966; }
+        #jitsiContainer { height: 380px; background: #111; }
+        .remote-controls { background: rgba(0,0,0,0.3); border-radius: 24px; padding: 12px; }
+        .remote-controls h3 { color: #ffd966; margin-bottom: 15px; font-size: 1rem; text-align: center; }
+        .remote-btn { background: #2c3e2f; color: white; border: none; width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 60px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .remote-btn:hover { background: #4c9f70; transform: scale(1.02); }
+        .toggle-group { display: flex; align-items: center; justify-content: space-between; background: #1e2b24; padding: 8px 12px; border-radius: 60px; margin-top: 10px; }
+        .toggle-group span { color: #ffd966; font-size: 0.8rem; }
+        .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #c24b4b; transition: 0.3s; border-radius: 34px; }
+        .slider:before { content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #4c9f70; }
+        input:checked + .slider:before { transform: translateX(22px); }
+        .pizarra-panel { flex: 4; min-width: 500px; background: rgba(255,255,255,0.08); backdrop-filter: blur(8px); border-radius: 32px; padding: 20px; border: 1px solid #ffd966; display: flex; flex-direction: column; }
+        
+        /* Controles de diapositivas */
+        .slides-bar {
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px;
+            background: #1e2b24; padding: 10px 20px; border-radius: 80px; margin-bottom: 20px;
+        }
+        .slide-btn { background: #2c3e2f; border: none; padding: 6px 18px; border-radius: 40px; cursor: pointer; font-weight: bold; color: white; }
+        .slide-counter { background: #0f1724; padding: 6px 16px; border-radius: 40px; color: #ffd966; }
+        .slide-thumb-list { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 20px 0; justify-content: center; }
+        .slide-thumb { background: #2d3e3a; padding: 4px 14px; border-radius: 30px; cursor: pointer; font-size: 0.8rem; }
+        .slide-thumb.active { background: #ffd966; color: #1e293b; font-weight: bold; }
+        
+        canvas { background: white; border-radius: 28px; display: block; width: 100%; height: auto; cursor: crosshair; box-shadow: 0 0 20px rgba(0,0,0,0.4); margin-bottom: 20px; }
+        .toolbar-drawing { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; background: #1e2b24; padding: 12px 20px; border-radius: 80px; margin-bottom: 20px; }
+        .tool-btn { background: #2c3e2f; border: none; padding: 8px 18px; border-radius: 40px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
+        .tool-btn.active { background: #ffd966; color: #1e293b; box-shadow: 0 0 0 2px white; }
+        .tool-group { display: flex; align-items: center; gap: 8px; background: #0f1724; padding: 5px 16px; border-radius: 60px; }
+        .tool-group label { font-size: 0.8rem; color: #ffd966; }
+        input[type="color"] { width: 45px; height: 35px; border-radius: 10px; cursor: pointer; background: transparent; border: 1px solid #aaa; }
+        input[type="range"] { width: 120px; }
+        .toolbar-bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; background: #1e2b24; padding: 12px 20px; border-radius: 80px; }
+        .left-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .bg-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        
+        /* Textboxes */
+        .textboxes-area {
+            margin-top: 20px;
+            background: #1e2b24;
+            border-radius: 28px;
+            padding: 15px;
+        }
+        .textbox-card {
+            background: #2d3e3a;
+            border-radius: 20px;
+            padding: 10px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .textbox-label {
+            font-weight: bold;
+            color: #ffd966;
+            min-width: 80px;
+        }
+        .textbox-input {
+            flex: 3;
+            padding: 8px;
+            border-radius: 40px;
+            border: 1px solid #ffd966;
+            background: #1a2a2a;
+            color: white;
+        }
+        .vis-btn {
+            background: #e06c6c;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 40px;
+            cursor: pointer;
+            color: white;
+        }
+        @media (max-width: 900px) { .main-layout { flex-direction: column; } .jitsi-remote-panel { min-width: auto; } .pizarra-panel { min-width: auto; } }
+    </style>
+    <script src="https://8x8.vc/vpaas-magic-cookie-b74fcf0dc97943ddad2f5fc49881f391/external_api.js"></script>
+</head>
+<body>
+<div class="dashboard">
+    <h1 style="color:#ffd966; text-align:center; margin-bottom: 0.5rem;">👑 TUTOR V25 · Diapositivas + Textos + Exportar PNG</h1>
+    <div id="statusHeader" class="status-header">🟢 WebSocket conectado</div>
+
+    <div class="main-layout">
+        <div class="jitsi-remote-panel">
+            <div class="jitsi-wrapper">
+                <div>📹 Videoconferencia</div>
+                <div id="jitsiContainer"></div>
+            </div>
+            <div class="remote-controls">
+                <h3>🎮 Control remoto sobre clientes</h3>
+                <button id="muteAllBtn" class="remote-btn">🔇 Silenciar micrófonos</button>
+                <button id="videoOffAllBtn" class="remote-btn">📹 Apagar cámaras</button>
+                <div class="toggle-group">
+                    <span>📡 Mostrar Jitsi en clientes</span>
+                    <label class="switch">
+                        <input type="checkbox" id="toggleJitsiRemoto" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="pizarra-panel">
+            <!-- Controles de diapositivas con botón de exportar PNG -->
+            <div class="slides-bar">
+                <button id="prevSlideBtn" class="slide-btn">◀ Anterior</button>
+                <span class="slide-counter">Diapositiva <span id="slideIndex">1</span> / <span id="totalSlides">1</span></span>
+                <button id="nextSlideBtn" class="slide-btn">Siguiente ▶</button>
+                <button id="addSlideBtn" class="slide-btn">➕ Nueva</button>
+                <button id="deleteSlideBtn" class="slide-btn" style="background:#c24b4b;">🗑️ Eliminar</button>
+                <button id="exportPngBtn" class="slide-btn" style="background:#4c9f70;">📸 Exportar PNG</button>
+            </div>
+            <div id="slideThumbList" class="slide-thumb-list"></div>
+
+            <canvas id="canvasTutor" width="800" height="500" style="width:100%; height:auto; aspect-ratio:800/500"></canvas>
+
+            <div class="toolbar-drawing">
+                <button id="lapizBtn" class="tool-btn active">✏️ Lápiz</button>
+                <button id="borradorBtn" class="tool-btn">🧽 Borrador</button>
+                <div class="tool-group"><label>🎨 Color:</label><input type="color" id="colorPicker" value="#000000"></div>
+                <div class="tool-group"><label>📏 Grosor:</label><input type="range" id="grosorSlider" min="2" max="40" value="6"><span id="grosorValue">6px</span></div>
+                <button id="limpiarDibujoBtn" class="tool-btn">🗑️ Limpiar dibujo</button>
+            </div>
+
+            <div class="toolbar-bottom">
+                <div class="left-group">
+                    <div class="toggle-group" style="margin-top:0;">
+                        <span>🎨 Mostrar pizarra en clientes</span>
+                        <label class="switch">
+                            <input type="checkbox" id="togglePizarraRemota" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="bg-controls">
+                    <div class="tool-group"><label>🖼️ Imagen fondo:</label><input type="file" id="inputImagenFondo" accept="image/*" style="display:none"><label for="inputImagenFondo" class="tool-btn" style="background:#4c9f70;">Subir imagen</label><button id="resetFondoBtn" class="tool-btn">Reset fondo</button></div>
+                    <div class="tool-group"><label>🎨 Color de fondo:</label><input type="color" id="fondoColorPicker" value="#ffffff"></div>
+                </div>
+            </div>
+
+            <!-- Textboxes MSN -->
+            <div class="textboxes-area">
+                <div id="textboxContainer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let ws = null;
+    const SALA_JITSI_FIJA = 'sala-unica-tutor-v25';
+    let slides = [];
+    let currentSlide = 0;
+    let herramienta = 'lapiz';
+    let colorLinea = '#000000', grosorLinea = 6, colorFondo = '#ffffff', imagenFondo = null;
+    let dibujando = false, ultimoX = 0, ultimoY = 0;
+    const canvas = document.getElementById('canvasTutor');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 800; canvas.height = 500;
+
+    function crearSlideVacio() {
+        return { 
+            strokes: [], 
+            colorFondo: '#ffffff', 
+            imagenFondo: null, 
+            textos: ['', '', ''], 
+            visibilidad: [true, true, true] 
+        };
+    }
+
+    function redibujarCanvas() {
+        const slide = slides[currentSlide];
+        if (!slide) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = slide.colorFondo;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (slide.imagenFondo) ctx.drawImage(slide.imagenFondo, 0, 0, canvas.width, canvas.height);
+        for (let s of slide.strokes) {
+            ctx.beginPath(); ctx.moveTo(s.x0, s.y0); ctx.lineTo(s.x1, s.y1);
+            ctx.strokeStyle = s.color; ctx.lineWidth = s.width; ctx.stroke();
+        }
+    }
+
+    function renderTextos() {
+        const container = document.getElementById('textboxContainer');
+        const textos = slides[currentSlide].textos;
+        const visibilidad = slides[currentSlide].visibilidad;
+        container.innerHTML = '';
+        for (let i = 0; i < 3; i++) {
+            const div = document.createElement('div');
+            div.className = 'textbox-card';
+            div.innerHTML = `
+                <span class="textbox-label">📌 MSN_${i+1}:</span>
+                <input type="text" class="textbox-input" id="texto_${i}" value="${escapeHtml(textos[i])}" placeholder="Mensaje ${i+1}">
+                <button class="vis-btn" data-idx="${i}">${visibilidad[i] ? '🙈 Ocultar' : '👁️ Mostrar'}</button>
+            `;
+            container.appendChild(div);
+        }
+        for (let i = 0; i < 3; i++) {
+            const input = document.getElementById(`texto_${i}`);
+            input.oninput = (e) => {
+                slides[currentSlide].textos[i] = e.target.value;
+                enviarCambioTexto(i, e.target.value);
+            };
+            const btn = container.querySelector(`.vis-btn[data-idx="${i}"]`);
+            btn.onclick = () => {
+                const newVis = !slides[currentSlide].visibilidad[i];
+                slides[currentSlide].visibilidad[i] = newVis;
+                btn.innerText = newVis ? '🙈 Ocultar' : '👁️ Mostrar';
+                enviarVisibilidad(i, newVis);
+            };
+        }
+    }
+
+    function enviarCambioTexto(idx, content) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ tipo: 'text_change', textboxIndex: idx, content }));
+        }
+    }
+    function enviarVisibilidad(idx, visible) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ tipo: 'visibility_change', textboxIndex: idx, visible }));
+        }
+    }
+    function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+
+    function guardarSlideActual() {
+        slides[currentSlide].colorFondo = colorFondo;
+        slides[currentSlide].imagenFondo = imagenFondo;
+    }
+
+    function actualizarUI() {
+        document.getElementById('slideIndex').innerText = currentSlide + 1;
+        document.getElementById('totalSlides').innerText = slides.length;
+        const container = document.getElementById('slideThumbList');
+        container.innerHTML = '';
+        slides.forEach((_, idx) => {
+            const thumb = document.createElement('div');
+            thumb.className = 'slide-thumb' + (idx === currentSlide ? ' active' : '');
+            thumb.innerText = idx + 1;
+            thumb.onclick = () => {
+                guardarSlideActual();
+                currentSlide = idx;
+                cargarSlide();
+                enviarCambioDiapositiva();
+            };
+            container.appendChild(thumb);
+        });
+    }
+
+    function cargarSlide() {
+        const slide = slides[currentSlide];
+        colorFondo = slide.colorFondo;
+        imagenFondo = slide.imagenFondo;
+        document.getElementById('fondoColorPicker').value = colorFondo;
+        redibujarCanvas();
+        renderTextos();
+    }
+
+    function enviarCambioDiapositiva() {
+        const slidesData = slides.map(s => ({
+            colorFondo: s.colorFondo,
+            strokes: s.strokes,
+            textos: s.textos,
+            visibilidad: s.visibilidad,
+            imagenFondoDataURL: s.imagenFondo ? s.imagenFondo.src : null
+        }));
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ tipo: 'slide_change', currentSlide, slides: slidesData }));
+        }
+    }
+
+    function enviarEstadoCompleto() {
+        const slidesData = slides.map(s => ({
+            colorFondo: s.colorFondo,
+            strokes: s.strokes,
+            textos: s.textos,
+            visibilidad: s.visibilidad,
+            imagenFondoDataURL: s.imagenFondo ? s.imagenFondo.src : null
+        }));
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ tipo: 'full_state', data: { slides: slidesData, currentSlide } }));
+        }
+    }
+
+    // WebSocket
+    function conectarWebSocket() {
+        const protocolo = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        ws = new WebSocket(`${protocolo}//${window.location.host}`);
+        ws.onopen = () => {
+            ws.send(JSON.stringify({ tipo: 'soy_tutor' }));
+            document.getElementById('statusHeader').innerHTML = '🟢 WebSocket conectado';
+            ws.send(JSON.stringify({ tipo: 'toggle_jitsi_remoto', visible: document.getElementById('toggleJitsiRemoto').checked }));
+            ws.send(JSON.stringify({ tipo: 'toggle_pizarra_remota', visible: document.getElementById('togglePizarraRemota').checked }));
+            enviarEstadoCompleto();
+        };
+        ws.onclose = () => {
+            document.getElementById('statusHeader').innerHTML = '⚠️ WebSocket reconectando...';
+            setTimeout(conectarWebSocket, 3000);
+        };
+    }
+
+    let jitsiTutorApi = null;
+    function iniciarJitsiTutor() {
+        const container = document.getElementById('jitsiContainer');
+        container.innerHTML = '';
+        const options = {
+            roomName: `vpaas-magic-cookie-b74fcf0dc97943ddad2f5fc49881f391/${SALA_JITSI_FIJA}`,
+            width: '100%', height: '100%', parentNode: container,
+            userInfo: { displayName: 'Tutor' },
+            configOverwrite: { startWithVideoMuted: true, startWithAudioMuted: true, disableDeepLinking: true },
+            interfaceConfigOverwrite: { SHOW_JITSI_WATERMARK: false, SHOW_BRAND_WATERMARK: false, SHOW_POWERED_BY: false }
+        };
+        try { jitsiTutorApi = new JitsiMeetExternalAPI("8x8.vc", options); }
+        catch(e) { container.innerHTML = '<div style="padding:20px;color:#ffaa66;">⚠️ Error Jitsi</div>'; }
+    }
+
+    function dibujarTrazo(x0, y0, x1, y1, color, width) {
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1);
+        ctx.strokeStyle = color; ctx.lineWidth = width; ctx.stroke();
+        slides[currentSlide].strokes.push({ x0, y0, x1, y1, color, width });
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ tipo: 'draw', data: { x0, y0, x1, y1, color, width } }));
+        }
+    }
+
+    function obtenerCoordenadas(e) {
+        const rect = canvas.getBoundingClientRect();
+        const escalaX = canvas.width / rect.width;
+        const escalaY = canvas.height / rect.height;
+        let clientX, clientY;
+        if (e.touches) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+        else { clientX = e.clientX; clientY = e.clientY; }
+        let x = (clientX - rect.left) * escalaX;
+        let y = (clientY - rect.top) * escalaY;
+        return { x: Math.min(Math.max(0, x), canvas.width), y: Math.min(Math.max(0, y), canvas.height) };
+    }
+
+    function empezarDibujo(e) { dibujando = true; const p = obtenerCoordenadas(e); ultimoX = p.x; ultimoY = p.y; e.preventDefault(); }
+    function dibujar(e) {
+        if (!dibujando) return; e.preventDefault(); const p = obtenerCoordenadas(e);
+        if (ultimoX === p.x && ultimoY === p.y) return;
+        let colorActual = herramienta === 'borrador' ? colorFondo : colorLinea;
+        let grosorActual = herramienta === 'borrador' ? grosorLinea * 1.2 : grosorLinea;
+        dibujarTrazo(ultimoX, ultimoY, p.x, p.y, colorActual, grosorActual);
+        ultimoX = p.x; ultimoY = p.y;
+    }
+    function terminarDibujo() { dibujando = false; }
+
+    canvas.addEventListener('mousedown', empezarDibujo);
+    canvas.addEventListener('mousemove', dibujar);
+    canvas.addEventListener('mouseup', terminarDibujo);
+    canvas.addEventListener('mouseleave', terminarDibujo);
+    canvas.addEventListener('touchstart', empezarDibujo);
+    canvas.addEventListener('touchmove', dibujar);
+    canvas.addEventListener('touchend', terminarDibujo);
+
+    document.getElementById('lapizBtn').onclick = () => {
+        herramienta = 'lapiz';
+        document.getElementById('lapizBtn').classList.add('active');
+        document.getElementById('borradorBtn').classList.remove('active');
+    };
+    document.getElementById('borradorBtn').onclick = () => {
+        herramienta = 'borrador';
+        document.getElementById('borradorBtn').classList.add('active');
+        document.getElementById('lapizBtn').classList.remove('active');
+    };
+    document.getElementById('colorPicker').oninput = e => colorLinea = e.target.value;
+    document.getElementById('grosorSlider').oninput = e => { grosorLinea = parseInt(e.target.value); document.getElementById('grosorValue').innerText = grosorLinea + 'px'; };
+    document.getElementById('limpiarDibujoBtn').onclick = () => {
+        slides[currentSlide].strokes = [];
+        redibujarCanvas();
+        if (ws) ws.send(JSON.stringify({ tipo: 'reset_pizarra_remota' }));
+    };
+    document.getElementById('fondoColorPicker').oninput = e => {
+        colorFondo = e.target.value;
+        slides[currentSlide].colorFondo = colorFondo;
+        redibujarCanvas();
+        if (ws) ws.send(JSON.stringify({ tipo: 'bg_color', color: colorFondo }));
+    };
+
+    function comprimirYSubirImagen(file) {
+        const reader = new FileReader();
+        reader.onload = ev => {
+            const img = new Image();
+            img.onload = () => {
+                let w = img.width, h = img.height;
+                const maxW = 1024, maxH = 768;
+                if (w > maxW) { h = (h * maxW) / w; w = maxW; }
+                if (h > maxH) { w = (w * maxH) / h; h = maxH; }
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = w; tempCanvas.height = h;
+                tempCanvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                const dataURL = tempCanvas.toDataURL('image/jpeg', 0.85);
+                const bgImg = new Image();
+                bgImg.onload = () => {
+                    imagenFondo = bgImg;
+                    slides[currentSlide].imagenFondo = bgImg;
+                    redibujarCanvas();
+                    if (ws) ws.send(JSON.stringify({ tipo: 'bg_image', dataURL: dataURL }));
+                };
+                bgImg.src = dataURL;
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    document.getElementById('inputImagenFondo').onchange = e => { if (e.target.files[0]) comprimirYSubirImagen(e.target.files[0]); };
+    document.getElementById('resetFondoBtn').onclick = () => {
+        imagenFondo = null;
+        slides[currentSlide].imagenFondo = null;
+        redibujarCanvas();
+        if (ws) ws.send(JSON.stringify({ tipo: 'bg_image', dataURL: null }));
+    };
+
+    document.getElementById('exportPngBtn').onclick = () => {
+        const link = document.createElement('a');
+        link.download = `diapositiva_${currentSlide+1}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+    };
+
+    document.getElementById('muteAllBtn').onclick = () => { if (jitsiTutorApi) jitsiTutorApi.executeCommand('muteEveryone'); if (ws) ws.send(JSON.stringify({ tipo: 'comando_mute_todos' })); };
+    document.getElementById('videoOffAllBtn').onclick = () => { if (ws) ws.send(JSON.stringify({ tipo: 'comando_video_off_todos' })); };
+    const toggleJitsiRemoto = document.getElementById('toggleJitsiRemoto');
+    const togglePizarraRemota = document.getElementById('togglePizarraRemota');
+    toggleJitsiRemoto.addEventListener('change', e => { if (ws) ws.send(JSON.stringify({ tipo: 'toggle_jitsi_remoto', visible: e.target.checked })); });
+    togglePizarraRemota.addEventListener('change', e => { if (ws) ws.send(JSON.stringify({ tipo: 'toggle_pizarra_remota', visible: e.target.checked })); });
+
+    document.getElementById('prevSlideBtn').onclick = () => {
+        if (currentSlide > 0) {
+            guardarSlideActual();
+            currentSlide--;
+            cargarSlide();
+            actualizarUI();
+            enviarCambioDiapositiva();
+        }
+    };
+    document.getElementById('nextSlideBtn').onclick = () => {
+        if (currentSlide < slides.length - 1) {
+            guardarSlideActual();
+            currentSlide++;
+            cargarSlide();
+            actualizarUI();
+            enviarCambioDiapositiva();
+        }
+    };
+    document.getElementById('addSlideBtn').onclick = () => {
+        guardarSlideActual();
+        slides.push(crearSlideVacio());
+        currentSlide = slides.length - 1;
+        cargarSlide();
+        actualizarUI();
+        enviarCambioDiapositiva();
+    };
+    document.getElementById('deleteSlideBtn').onclick = () => {
+        if (slides.length === 1) return alert('No se puede eliminar la única diapositiva');
+        slides.splice(currentSlide, 1);
+        if (currentSlide >= slides.length) currentSlide = slides.length - 1;
+        cargarSlide();
+        actualizarUI();
+        enviarCambioDiapositiva();
+    };
+
+    slides.push(crearSlideVacio());
+    actualizarUI();
+    cargarSlide();
+    conectarWebSocket();
+    iniciarJitsiTutor();
+</script>
+</body>
+</html>
